@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+    container_name: phobos_app
+    command: '/app/scripts/start-server.sh'
+    tty: true
+    stdin_open: true
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    environment:
+      DATABASE_HOST: db
+    depends_on:
+      - db
+    links:
+      - db
+
+  db:
+    platform: linux/x86_64
+    image: mysql:8
+    container_name: phobos_db
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      TZ: Asia/Tokyo
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - '8025:8025'
+
+volumes:
+  bundle:
+    driver: local
+  db_data:
+    driver: local
